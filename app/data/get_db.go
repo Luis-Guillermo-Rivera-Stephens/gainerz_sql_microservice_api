@@ -47,16 +47,20 @@ func Get_db() (*gorm.DB, error) {
 }
 
 func getDataBaseUrl() (string, error) {
-	err := godotenv.Load("./DB.env") //carga el .env, lo hace accesible
+	err := godotenv.Load("./app/data/DB.env") //carga el .env, lo hace accesible
 	if err != nil {
 		fmt.Println("Error loading .env file")
 		return "", err
 	}
-	databaseURL := os.Getenv("DATABASE_URL") //busca en el .env esa variable
-	if databaseURL == "" {
-		fmt.Println("No se encontro el url")
-		return "", err
-	}
 
-	return databaseURL, nil
+	var server = os.Getenv("DB_SERVER")
+	var port = os.Getenv("DB_PORT")
+	var user = os.Getenv("DB_USER")
+	var password = os.Getenv("DB_PASSWORD")
+	var database = os.Getenv("DB_NAME")
+
+	connString := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s",
+		user, password, server, port, database)
+
+	return connString, nil
 }
