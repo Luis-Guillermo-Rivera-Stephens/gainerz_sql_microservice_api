@@ -28,7 +28,7 @@ func (api *API) Initialize(name string, port int16) (err error) {
 	api.router = mux.NewRouter()
 	fmt.Println("New router")
 	api.Port = port
-	api.DB, err = data.Get_db()
+	api.DB, err = data.Get_db(false, false)
 
 	if err != nil {
 		fmt.Println("Error getting database")
