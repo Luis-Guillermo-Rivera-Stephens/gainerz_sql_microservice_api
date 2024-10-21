@@ -11,11 +11,11 @@ import (
 
 var DB *gorm.DB
 
-func Get_db() (*gorm.DB, error) {
+func Get_db(flag bool, test bool) (*gorm.DB, error) {
 	var err error
 	var url string
 	if DB == nil { //Si la base no esta inicializada
-		url, err = getDataBaseUrl() //funcion que retorna el DNS del .env
+		url, err = getDataBaseUrl(test) //funcion que retorna el DNS del .env
 		if err != nil {
 			fmt.Println("No se pudo obtener el link de la base de datos")
 			return nil, err
@@ -26,6 +26,10 @@ func Get_db() (*gorm.DB, error) {
 		if err != nil {
 			fmt.Println("Error connecting to database")
 			return nil, err
+		}
+
+		if flag {
+			DB.AutoMigrate(&GYMCHAIN{}, &GYMIMAGE{}, &USER{}, &VIP{}, &COACH{}, &GYM{})
 		}
 
 		return DB, nil
@@ -46,21 +50,30 @@ func Get_db() (*gorm.DB, error) {
 	return DB, nil
 }
 
-func getDataBaseUrl() (string, error) {
-	err := godotenv.Load("./app/data/DB.env") //carga el .env, lo hace accesible
+func getDataBaseUrl(test bool) (string, error) {
+	var server, port, user, password, database string
+	err := godotenv.Load("./app/data/app/data/DB.env") //carga el .env, lo hace accesible
 	if err != nil {
 		fmt.Println("Error loading .env file")
 		return "", err
 	}
+	if test {
+		server = os.Getenv("DB_SERVER_TEST")
+		port = os.Getenv("DB_PORT_TEST")
+		user = os.Getenv("DB_USER_TEST")
+		password = os.Getenv("DB_PASSWORD_TEST")
+		database = os.Getenv("DB_NAME_TEST")
 
-	var server = os.Getenv("DB_SERVER")
-	var port = os.Getenv("DB_PORT")
-	var user = os.Getenv("DB_USER")
-	var password = os.Getenv("DB_PASSWORD")
-	var database = os.Getenv("DB_NAME")
+	} else {
+		server = os.Getenv("DB_SERVER")
+		port = os.Getenv("DB_PORT")
+		user = os.Getenv("DB_USER")
+		password = os.Getenv("DB_PASSWORD")
+		database = os.Getenv("DB_NAME")
+	}
 
-	connString := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s",
+	databaseURL := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s&encrypt=disable",
 		user, password, server, port, database)
 
-	return connString, nil
+	return databaseURL, nil
 }
