@@ -28,7 +28,7 @@ func (api *API) Initialize(name string, port int16) (err error) {
 	api.router = mux.NewRouter()
 	fmt.Println("New router")
 	api.Port = port
-	api.DB, err = data.Get_db(false, false)
+	api.DB, err = data.Get_db(data.Of_Flag)
 
 	if err != nil {
 		fmt.Println("Error getting database")
@@ -47,7 +47,10 @@ func (api *API) Listen() {
 	}
 }
 
-func GetAPI() (API, error) {
+func GetAPI(test, automigrate bool) (API, error) {
+	data.Of_Flag.TestFlag = test
+	data.Of_Flag.AutoMigrateFlag = automigrate
+
 	var err error = nil
 	if !ApiInfo.Started {
 		err = ApiInfo.Initialize("TicketManagerServer", 8080)

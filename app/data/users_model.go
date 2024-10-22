@@ -34,7 +34,7 @@ func (USER) TableName() string {
 }
 
 func (u USER) updateLastConection() error {
-	db, err := Get_db(false, false)
+	db, err := Get_db(Of_Flag)
 	if err != nil {
 		return fmt.Errorf("error getting the database at: update_last_conection")
 	}
